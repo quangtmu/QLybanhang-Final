@@ -1,0 +1,200 @@
+/* ===== STORE ORDERS - Dedicated Action Column Styles ===== */
+
+/* Force action cell to top-align regardless of any other rule */
+.order-actions-cell {
+    vertical-align: top !important;
+    padding: 10px 8px !important;
+    white-space: nowrap;
+    width: 220px;
+    min-width: 200px;
+}
+
+/* Main wrapper inside the cell */
+.order-act {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+/* Row of action buttons */
+.order-act__btns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+}
+
+.order-act__btns form {
+    display: flex;
+    margin: 0;
+}
+
+/* Shared button base */
+.order-act__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: filter 0.15s, box-shadow 0.15s;
+    line-height: 1.4;
+    height: 30px;
+    box-sizing: border-box;
+    justify-content: center;
+}
+.order-act__btn:hover {
+    filter: brightness(0.92);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Confirm */
+.order-act__btn--confirm { background: #ecfdf5; color: #0f766e; border-color: #a7f3d0; }
+/* Pack */
+.order-act__btn--pack { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+/* Ship link */
+.order-act__btn--ship { background: #f8fafc; color: #334155; border-color: #cbd5e1; }
+.order-act__btn--ship:hover { background: #e2e8f0; }
+/* Done label (not a button) */
+.order-act__done {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    white-space: nowrap;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+/* Cancel row */
+.order-act__cancel {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0;
+}
+.order-act__cancel-input {
+    width: 130px;
+    padding: 5px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid #fca5a5;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.order-act__cancel-input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239,68,68,0.1);
+}
+.order-act__btn--cancel {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+}
+.order-act__btn--cancel:hover {
+    background: #fecaca;
+}
+
+/* Gallery preview carousel */
+.gallery-carousel {
+    position: relative;
+    width: 100%;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafbfc;
+    overflow: hidden;
+}
+.gallery-carousel__img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: contain;
+    display: none;
+}
+.gallery-carousel__img.active {
+    display: block;
+}
+.gallery-carousel__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #334155;
+    transition: all 0.2s;
+    z-index: 2;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.gallery-carousel__nav:hover {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.gallery-carousel__nav--prev { left: 6px; }
+.gallery-carousel__nav--next { right: 6px; }
+.gallery-carousel__counter {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+.gallery-carousel__empty {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px;
+}
+.gallery-carousel__empty i {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 6px;
+    opacity: 0.5;
+}
+.gallery-carousel__thumbs {
+    display: flex;
+    gap: 6px;
+    padding: 10px 16px;
+    border-top: 1px solid #e2e8f0;
+    overflow-x: auto;
+    background: #f8fafc;
+}
+.gallery-carousel__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+}
+.gallery-carousel__thumb.active {
+    border-color: #3b82f6;
+}
+.gallery-carousel__thumb:hover {
+    border-color: #93c5fd;
+}

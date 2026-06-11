@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN is_recommended TINYINT(1) NOT NULL DEFAULT 0;

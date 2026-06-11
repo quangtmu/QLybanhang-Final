@@ -1,0 +1,782 @@
+{
+  "info": {
+    "name": "QLybanhang Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": "1"
+    },
+    {
+      "key": "product_id",
+      "value": "1"
+    },
+    {
+      "key": "cart_item_id",
+      "value": "1"
+    },
+    {
+      "key": "category_id",
+      "value": "1"
+    },
+    {
+      "key": "store_product_id",
+      "value": "1"
+    },
+    {
+      "key": "store_order_id",
+      "value": "1"
+    },
+    {
+      "key": "shipment_id",
+      "value": "1"
+    },
+    {
+      "key": "buyer_email",
+      "value": "buyer@example.com"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/health.php"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/auth.php?action=login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin@example.com\",\n  \"password\": \"Admin@123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('response is json', function () { pm.response.to.have.header('Content-Type'); });",
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('token', json.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Buyer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/auth.php?action=login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"buyer@example.com\",\n  \"password\": \"Buyer@123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('response is json', function () { pm.response.to.have.header('Content-Type'); });",
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('token', json.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change First Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"Admin@123456\",\n  \"new_password\": \"Admin@123456\",\n  \"new_password_confirmation\": \"Admin@123456\"\n}"
+            },
+            "url": "{{base_url}}/api/auth.php?action=change-password"
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/auth.php?action=me"
+          }
+        },
+        {
+          "name": "Register Buyer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/auth.php?action=register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"buyer_demo\",\n  \"email\": \"buyer@example.com\",\n  \"password\": \"Buyer@123456\",\n  \"password_confirmation\": \"Buyer@123456\",\n  \"full_name\": \"Buyer Demo\",\n  \"phone\": \"0900000000\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buyer",
+      "item": [
+        {
+          "name": "Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/user/products.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/user/products.php?action=detail&id={{product_id}}"
+          }
+        },
+        {
+          "name": "Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/user/cart.php"
+          }
+        },
+        {
+          "name": "Add To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/user/cart.php",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Checkout From Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/user/orders.php?action=checkout",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shipping_address\": {\n    \"full_name\": \"Buyer Demo\",\n    \"phone\": \"0900000000\",\n    \"address\": \"Quan 1, TP HCM\"\n  },\n  \"note\": \"Test Postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/user/orders.php?action=list"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/dashboard.php?action=summary"
+          }
+        },
+        {
+          "name": "Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/users.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Store Registrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/store-registrations.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/orders.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Shipments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/shipments.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/invoices.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/products.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/products.php?action=detail&id={{store_product_id}}"
+          }
+        },
+        {
+          "name": "Approve Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/products.php?action=approve&id={{store_product_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Reject Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/admin/products.php?action=reject&id={{store_product_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Thong tin san pham chua day du\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Store",
+      "item": [
+        {
+          "name": "Store Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/dashboard.php?action=summary"
+          }
+        },
+        {
+          "name": "Employees",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/employees.php?action=list"
+          }
+        },
+        {
+          "name": "Store Invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/invoices.php?action=list"
+          }
+        },
+        {
+          "name": "Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/products.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Create Product Draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/products.php?action=create",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"TSHIRT-DEMO\",\n  \"category_id\": 1,\n  \"name\": \"Ao thun demo\",\n  \"description\": \"San pham test tu Postman\",\n  \"base_price\": 199000,\n  \"main_image_url\": \"/uploads/products/demo.jpg\",\n  \"tag_ids\": [],\n  \"variants\": [\n    {\n      \"type_label\": \"Mau/Kich co\",\n      \"color\": \"Den\",\n      \"size\": \"M\",\n      \"sku\": \"TSHIRT-DEMO-BLK-M\",\n      \"price\": 199000,\n      \"stock_quantity\": 20\n    },\n    {\n      \"type_label\": \"Mau/Kich co\",\n      \"color\": \"Trang\",\n      \"size\": \"L\",\n      \"sku\": \"TSHIRT-DEMO-WHT-L\",\n      \"price\": 209000,\n      \"stock_quantity\": 15\n    }\n  ],\n  \"submit_for_review\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Product Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/products.php?action=detail&id={{store_product_id}}"
+          }
+        },
+        {
+          "name": "Submit Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/products.php?action=submit&id={{store_product_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Archive Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/products.php?action=archive&id={{store_product_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/orders.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/orders.php?action=detail&id={{store_order_id}}"
+          }
+        },
+        {
+          "name": "Create Manual Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/orders.php?action=create-manual",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buyer_email\": \"{{buyer_email}}\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"variant_id\": 1,\n      \"quantity\": 1\n    }\n  ],\n  \"shipping_address\": {\n    \"full_name\": \"Buyer Demo\",\n    \"phone\": \"0900000000\",\n    \"address\": \"Quan 1, TP HCM\"\n  },\n  \"note\": \"Shop tao don thu cong\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Confirm Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/orders.php?action=confirm&id={{store_order_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Shop xac nhan\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Start Processing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/orders.php?action=processing&id={{store_order_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Dang dong goi\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/orders.php?action=cancel&id={{store_order_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Shop het hang\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Shipments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/shipments.php?action=list&limit=10"
+          }
+        },
+        {
+          "name": "Shipment Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base_url}}/api/store/shipments.php?action=orders&limit=10"
+          }
+        },
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/shipments.php?action=create",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": 1,\n  \"carrier_name\": \"GHN\",\n  \"current_status\": \"waiting_pickup\",\n  \"shipper_name\": \"Shipper Demo\",\n  \"shipper_phone\": \"0900000001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Shipment Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/shipments.php?action=status&id={{shipment_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"picked_up\",\n  \"note\": \"Da lay hang\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Out For Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/shipments.php?action=status&id={{shipment_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"out_for_delivery\",\n  \"note\": \"Dang giao\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mark Delivered",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/store/shipments.php?action=status&id={{shipment_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"delivered\",\n  \"note\": \"Da giao thanh cong\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

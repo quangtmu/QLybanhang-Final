@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* Buyer portal UI Layout - Premium Redesign */
+.buyer-page {
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    --buyer-accent: #004ac6;
+    --buyer-accent-strong: #003ea8;
+    --buyer-accent-soft: #dbe7ff;
+    --buyer-ink: #111827;
+    --buyer-muted: #667085;
+    --buyer-line: #e5e7eb;
+    --buyer-soft: #f8fafc;
+
+    background:
+        radial-gradient(circle at 8% 0%, rgba(219, 231, 255, 0.9) 0, transparent 34rem),
+        radial-gradient(circle at 92% 10%, rgba(226, 232, 240, 0.9) 0, transparent 30rem),
+        linear-gradient(180deg, #f9fafb 0%, #f8fafc 430px, #ffffff 100vh);
+    color: var(--buyer-ink);
+    letter-spacing: -0.005em;
+}
+
+.buyer-page .portal-shell,
+.buyer-page .portal-wide {
+    width: min(1280px, calc(100% - 32px));
+    max-width: 1280px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 12px 0 40px;
+}
+
+/* Top navigation - Clean & Compact */
+.buyer-page .buyer-topbar {
+    position: sticky !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 60;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    width: 100% !important;
+    min-height: 56px;
+    margin: 0 0 16px;
+    border: 1px solid rgba(203, 213, 225, 0.3);
+    border-radius: 16px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    overflow: visible !important;
+    transition: all 0.25s ease;
+}
+
+.buyer-page .buyer-topbar:hover {
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.buyer-page .buyer-topbar>strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--buyer-accent-strong);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.buyer-page .buyer-topbar .portal-logo {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(180, 197, 255, 0.6);
+    border-radius: 12px;
+    padding: 3px;
+    object-fit: contain;
+    background: linear-gradient(135deg, #ffffff, #f0f4ff);
+    box-shadow: 0 4px 12px rgba(0, 74, 198, 0.08);
+}
+
+.buyer-page .buyer-topbar>span {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 0;
+    scrollbar-width: none;
+}
+
+.buyer-page .buyer-topbar>span::-webkit-scrollbar {
+    display: none;
+}
+
+.buyer-page .buyer-topbar a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 36px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 0 12px;
+    color: #5f6676;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    min-width: 36px;
+}
+
+.buyer-page .buyer-topbar a i {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    color: var(--buyer-accent);
+    background: rgba(219, 225, 255, 0.5);
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.buyer-page .buyer-topbar a:hover {
+    color: var(--buyer-accent);
+    background: rgba(219, 225, 255, 0.4);
+    transform: translateY(-0.5px);
+}
+
+.buyer-page .buyer-topbar a:hover i {
+    background: rgba(0, 74, 198, 0.1);
+}
+
+.buyer-page .buyer-topbar a.is-active,
+.buyer-page .buyer-topbar a[aria-current="page"] {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--buyer-accent), var(--buyer-accent-hover));
+    border-color: rgba(0, 74, 198, 0.1);
+    font-weight: 700;
+    box-shadow: 0 6px 16px rgba(0, 74, 198, 0.15);
+}
+
+.buyer-page .buyer-topbar a.is-active i,
+.buyer-page .buyer-topbar a[aria-current="page"] i {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.buyer-page .buyer-topbar a[href="/logout.php"],
+.buyer-page .buyer-topbar a[href="/logout.php"]:hover {
+    color: #475569;
+    background: #f8fafc;
+    border-color: #d6e2ee;
+}
+
+.buyer-page .portal-commandbar {
+    display: none !important;
+}
+
+/* Responsive layout */
+@media (max-width: 980px) {
+    .buyer-page .portal-shell,
+    .buyer-page .portal-wide {
+        width: min(100% - 24px, 1280px);
+        padding-top: 12px;
+    }
+
+    .buyer-page .buyer-topbar {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 8px 10px;
+    }
+
+    .buyer-page .buyer-topbar>span {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 640px) {
+    .buyer-page .portal-shell,
+    .buyer-page .portal-wide {
+        width: min(100% - 16px, 1280px);
+        padding: 8px 0 32px;
+    }
+
+    .buyer-page .buyer-topbar {
+        border-radius: 12px;
+        padding: 6px 8px;
+        min-height: 48px;
+        margin-bottom: 12px;
+    }
+
+    .buyer-page .buyer-topbar>strong {
+        font-size: 16px;
+    }
+
+    .buyer-page .buyer-topbar a {
+        height: 32px;
+        padding: 0 10px;
+        font-size: 11px;
+        min-width: 32px;
+    }
+
+    .buyer-page .buyer-topbar a i {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+    }
+
+    .buyer-page .portal-logo {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 8px !important;
+    }
+}

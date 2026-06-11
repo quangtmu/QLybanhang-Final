@@ -1,0 +1,7 @@
+/* Buyer portal entry. Keep implementation split by concern. */
+@import url("./buyer/layout.css?v=20260609-5");
+@import url("./buyer/components.css?v=20260609-5");
+@import url("./buyer/home.css?v=20260609-5");
+@import url("./buyer/product.css?v=20260609-5");
+@import url("./buyer/cart.css?v=20260609-5");
+@import url("./buyer/orders.css?v=20260609-6");

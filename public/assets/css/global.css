@@ -1,0 +1,304 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+@import url('./modules/base.css?v=20260611-17');
+@import url('./modules/ui.css?v=20260611-17');
+@import url('./modules/dashboard.css?v=20260611-17');
+@import url('./modules/storefront.css?v=20260611-17');
+
+.rich-content {
+    color: #263244;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.7;
+}
+
+.rich-content :is(p, h2, h3, h4, ul, ol, blockquote) {
+    margin: 0 0 10px;
+}
+
+.rich-content h2,
+.rich-content h3,
+.rich-content h4 {
+    color: #111827;
+    font-weight: 850;
+    line-height: 1.25;
+}
+
+.rich-content h2 {
+    font-size: 22px;
+}
+
+.rich-content h3 {
+    font-size: 19px;
+}
+
+.rich-content h4 {
+    font-size: 16px;
+}
+
+.rich-content ul,
+.rich-content ol {
+    padding-left: 22px;
+}
+
+.rich-content ul {
+    list-style: disc;
+}
+
+.rich-content ol {
+    list-style: decimal;
+}
+
+.rich-content blockquote {
+    border-left: 3px solid var(--ui-primary);
+    padding: 8px 12px;
+    color: #475569;
+    background: #f0fdfa;
+}
+
+.rich-content a {
+    color: var(--ui-primary);
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.product-review-description {
+    display: grid;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.product-review-description > .rich-content {
+    padding: 12px;
+    border: 1px solid #dbe7ef;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+/* Notifications UI Refinement */
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notification-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.notification-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.notification-item.unread {
+    background: #f0fdfa;
+    border-left: 4px solid var(--ui-primary);
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.notification-meta .badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+.notification-item.unread .notification-meta .badge {
+    background: #ccfbf1;
+    color: #115e59;
+}
+
+.notification-item h2 {
+    font-size: 1rem;
+    margin: 0 0 4px 0;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.notification-item p {
+    font-size: 0.9rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 90px;
+}
+
+.notification-actions button,
+.notification-actions .button-link {
+    background: #f1f5f9;
+    color: #334155;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.notification-actions button:hover,
+.notification-actions .button-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.notification-actions button[type="submit"] {
+    background: var(--ui-primary);
+    color: #fff;
+}
+
+.notification-actions button[type="submit"]:hover {
+    background: #115e59;
+}
+
+.notifications-page .filter-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.notifications-page .filter-row input,
+.notifications-page .filter-row select,
+.notifications-page .filter-row button {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #fff;
+}
+
+/* Polished Button System */
+.btn-primary {
+    background: linear-gradient(180deg, var(--ui-primary), #115bbd) !important;
+    color: #ffffff !important;
+    border: 1px solid #115bbd !important;
+    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: inline-flex;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+}
+.btn-primary:hover {
+    filter: brightness(1.1) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 6px -1px rgba(23, 105, 224, 0.2), 0 2px 4px -1px rgba(23, 105, 224, 0.1) !important;
+}
+.btn-primary:active {
+    transform: translateY(0) !important;
+}
+
+.btn-action-outline,
+.btn-outline,
+    background-color: #dbeafe !important;
+    transform: translateY(-1px) !important;
+    box-shadow: inset 0 0 0 1px rgba(29, 78, 216, 0.25), 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+.btn-action-outline:active,
+.btn-outline:active,
+.button-link:active {
+    transform: translateY(0) !important;
+}
+
+.btn-danger-outline {
+    background-color: #fef2f2 !important;
+    color: #b91c1c !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.15) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-danger-outline:hover {
+    background-color: #fee2e2 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.25), 0 4px 6px -1px rgba(239, 68, 68, 0.1) !important;
+}
+.btn-danger-outline:active {
+    transform: translateY(0) !important;
+}
+
+.btn-danger {
+    background: linear-gradient(180deg, var(--ui-error), #dc2626) !important;
+    color: #ffffff !important;
+    border: 1px solid #dc2626 !important;
+    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-danger:hover {
+    filter: brightness(1.1) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2) !important;
+}
+
+.btn-warning {
+    background: linear-gradient(180deg, #f59e0b, #d97706) !important;
+    color: #ffffff !important;
+    border: 1px solid #d97706 !important;
+    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-warning:hover {
+    filter: brightness(1.1) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2) !important;
+}
