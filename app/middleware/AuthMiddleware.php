@@ -14,7 +14,7 @@ class AuthMiddleware
         $user = self::user();
 
         if (!$user) {
-            self::deny('Vui lòng đang nhap de tiep tuc.', 401, '/login.php', $json);
+            self::deny('Vui lòng đăng nhập để tiếp tục.', 401, '/login.php', $json);
         }
 
         $_SESSION['user_id'] = (int) $user['id'];
@@ -40,7 +40,7 @@ class AuthMiddleware
 
         if ((int) $user['is_first_login'] === 1 && $currentPath !== '/change-password.php' && $currentPath !== '/logout.php') {
             if ($json) {
-                self::deny('Can doi mật khẩu lan dau truoc khi tiep tuc.', 403, '/change-password.php', true);
+                self::deny('Cần đổi mật khẩu lần đầu trước khi tiếp tục.', 403, '/change-password.php', true);
             }
 
             header('Location: /change-password.php');

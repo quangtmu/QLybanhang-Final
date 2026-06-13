@@ -23,7 +23,7 @@ class UiHelper
         return trim((string) preg_replace('/-+/', '-', $string), '-');
     }
 
-    public static function productUrl(int $id, string $slug = null): string
+    public static function productUrl(int $id, ?string $slug = null): string
     {
         if ($slug) {
             return '/san-pham/' . $slug;
@@ -31,7 +31,7 @@ class UiHelper
         return '/user/product-detail.php?id=' . $id;
     }
 
-    public static function categoryUrl(int $id, string $slug = null): string
+    public static function categoryUrl(int $id, ?string $slug = null): string
     {
         if ($slug) {
             return '/danh-muc/' . $slug;
