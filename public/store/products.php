@@ -192,7 +192,10 @@ $stats = $db->query("SELECT
             <?php $modalOpen = $editing || (!empty($fieldErrors) || !empty($generalErrors)); ?>
             <div id="product-modal" style="<?= $modalOpen ? 'display:block;' : 'display:none;' ?> position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; overflow-y: auto; padding: 40px 20px;">
                 <section class="portal-panel" style="max-width: 1700px; width: 95%; margin: 0 auto; position: relative;">
-                    <h2><?= $editing ? 'Sửa sản phẩm' : 'Tạo sản phẩm' ?></h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; padding-bottom: 10px;">
+                        <h2 style="margin: 0;"><?= $editing ? 'Sửa sản phẩm' : 'Tạo sản phẩm' ?></h2>
+                        <button type="button" onclick="document.getElementById('product-modal').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer; color:#64748b;">&times;</button>
+                    </div>
                     <?php if (!$categories): ?>
                         <div class="alert alert-error">Chưa có danh mục đang bật. Cần admin tạo danh mục trước khi shop tạo sản phẩm.</div>
                     <?php else: ?>

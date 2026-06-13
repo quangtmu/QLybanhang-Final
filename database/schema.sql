@@ -36,6 +36,8 @@ CREATE TABLE `users` (
     `email` VARCHAR(255) NOT NULL,
     `password_hash` VARCHAR(255) NOT NULL,
     `password_dev` VARCHAR(255) NULL COMMENT 'Local dev only password hint. Do not use in production.',
+    `reset_token` VARCHAR(255) NULL,
+    `reset_token_expires_at` DATETIME NULL,
     `full_name` VARCHAR(255) NOT NULL,
     `phone` VARCHAR(20) NULL,
     `avatar_url` VARCHAR(512) NULL,
