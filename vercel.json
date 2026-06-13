@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "outputDirectory": "public",
+  "builds": [
+    {
+      "src": "public/**/*.php",
+      "use": "vercel-php@0.6.0"
+    },
+    {
+      "src": "public/assets/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
+  ]
+}
