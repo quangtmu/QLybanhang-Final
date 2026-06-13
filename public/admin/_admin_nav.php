@@ -25,7 +25,7 @@ if (!function_exists('adminNavLinkClass')) {
     }
 }
 
-$pendingStoresCount = (int) getDB()->query("SELECT COUNT(*) FROM users WHERE user_type = 'store_pending' AND deleted_at IS NULL")->fetchColumn();
+$pendingStoresCount = (int) getDB()->query("SELECT COUNT(*) FROM store_registration_requests WHERE status = 'pending'")->fetchColumn();
 $pendingProductsCount = (int) getDB()->query("SELECT COUNT(*) FROM products WHERE status = 'pending_review' AND deleted_at IS NULL")->fetchColumn();
 $pendingOrdersCount = (int) getDB()->query("SELECT COUNT(*) FROM orders WHERE status = 'pending'")->fetchColumn();
 
@@ -48,7 +48,8 @@ if (!function_exists('adminNavBadge')) {
         <a href="/admin/dashboard.php" class="<?= adminNavLinkClass('/admin/dashboard.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-grid-1x2"></i> Dashboard</a>
 
         <a href="/admin/users.php?tab=buyer" class="<?= adminNavLinkClass('/admin/users.php?tab=buyer', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-person"></i> Quản lý người mua</a>
-        <a href="/admin/users.php?tab=store" class="<?= adminNavLinkClass('/admin/users.php?tab=store', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-shop"></i> Quản lý store<?= adminNavBadge($pendingStoresCount) ?></a>
+        <a href="/admin/users.php?tab=store" class="<?= adminNavLinkClass('/admin/users.php?tab=store', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-shop"></i> Quản lý store</a>
+        <a href="/admin/store-registrations.php" class="<?= adminNavLinkClass('/admin/store-registrations.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-shop-window"></i> Duyệt đơn mở shop<?= adminNavBadge($pendingStoresCount) ?></a>
         <a href="/admin/users.php?tab=admin" class="<?= adminNavLinkClass('/admin/users.php?tab=admin', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-shield-lock"></i> Quản lý Sub-admin</a>
 
         <a href="/admin/orders.php" class="<?= adminNavLinkClass('/admin/orders.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-receipt"></i> Danh sách đơn hàng<?= adminNavBadge($pendingOrdersCount) ?></a>
