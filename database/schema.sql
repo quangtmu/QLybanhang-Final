@@ -1,8 +1,4 @@
-CREATE DATABASE IF NOT EXISTS `sales_system`
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE `sales_system`;
+-- Automatically use the currently connected database
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;

@@ -1,4 +1,4 @@
-USE `sales_system`;
+-- Automatically use the currently connected database
 
 INSERT INTO `users` (
     `uuid`,
