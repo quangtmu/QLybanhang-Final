@@ -8,39 +8,52 @@
     function productCard(product) {
         var id = Number(product.id);
         var sold = Number(product.sold_count || 0);
-        var storeSlug = product.store_slug ? String(product.store_slug) : '';
         var storeName = APP.escapeHtml(product.store_name || 'Shop');
-        var image = product.main_image_url
-            ? '<img src="' + APP.escapeHtml(product.main_image_url) + '" alt="' + APP.escapeHtml(product.name) + '">'
-            : '<span>Chưa có ảnh</span>';
-        var store = storeSlug
-            ? '<a class="product-store" href="/user/shop.php?slug=' + encodeURIComponent(storeSlug) + '"><i class="bi bi-shop-window"></i>' + storeName + '</a>'
-            : '<span class="product-store"><i class="bi bi-shop-window"></i>' + storeName + '</span>';
+        var name = APP.escapeHtml(product.name);
+        
+        var imgUrl = product.main_image_url || '';
+        if (imgUrl && imgUrl.startsWith('http')) {
+            // keep as is
+        } else if (imgUrl) {
+            imgUrl = 'https://pub-309aa43ab7414948a1e66726694eda95.r2.dev/' + imgUrl;
+        } else {
+            imgUrl = 'https://placehold.co/400x400/e2e8f0/64748b?text=No+Image';
+        }
+        
+        var productUrl = '/user/product-detail.php?id=' + id + (product.slug ? '&slug=' + APP.escapeHtml(product.slug) : '');
+        var hasVariants = Number(product.has_variants) === 1;
 
-        var action = Number(product.has_variants) === 1
-            ? '<a class="button-link product-buy-link" href="/user/product-detail.php?id=' + id + '">Chọn mua</a>'
-            : '<button type="button" class="js-add-cart product-cart-button" data-product-id="' + id + '"><i class="bi bi-cart-plus"></i>Thêm</button>';
+        var soldBadge = sold > 0 
+            ? '<div class="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5">' +
+              '<span class="material-symbols-outlined text-[12px] fill">local_fire_department</span>' + sold +
+              '</div>' 
+            : '';
+
+        var actionBtn = hasVariants
+            ? '<a href="' + productUrl + '" class="w-8 h-8 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-container transition-all shadow-sm active:scale-95" title="Chọn mua"><span class="material-symbols-outlined text-[16px]">shopping_bag</span></a>'
+            : '<button type="button" class="js-add-cart w-8 h-8 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-container transition-all shadow-sm active:scale-95" data-product-id="' + id + '" title="Thêm giỏ"><span class="material-symbols-outlined text-[16px]">add_shopping_cart</span></button>';
 
         return '' +
-            '<article class="product-card market-product-card" data-card-context="search">' +
-                '<a class="product-image" href="/user/product-detail.php?id=' + id + '">' +
-                    image +
-                    '<span class="product-badge">Đã bán ' + sold + '</span>' +
-                '</a>' +
-                '<div class="product-card-body">' +
-                    store +
-                    '<h2><a href="/user/product-detail.php?id=' + id + '">' + APP.escapeHtml(product.name) + '</a></h2>' +
-                    '<p class="product-meta">' + APP.escapeHtml(product.category_name || 'Chưa phân loại') + ' · ' + APP.escapeHtml(product.product_code || '') + '</p>' +
-                    '<div class="product-card-bottom">' +
-                        '<strong class="price-cell">' + APP.money(product.base_price) + '</strong>' +
-                        '<span>' + sold + ' đã bán</span>' +
+            '<div class="group bg-white rounded-xl overflow-hidden border border-border-subtle hover:shadow-md transition-all duration-300 flex flex-col h-full hover:-translate-y-0.5">' +
+                '<a href="' + productUrl + '" class="block">' +
+                    '<div class="aspect-square bg-surface-container-low overflow-hidden relative">' +
+                        '<img alt="' + name + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="' + imgUrl + '"/>' +
+                        soldBadge +
                     '</div>' +
-                    '<div class="product-card-actions">' +
-                        '<a class="button-link product-detail-link" href="/user/product-detail.php?id=' + id + '">Chi tiết</a>' +
-                        action +
+                '</a>' +
+                '<div class="p-3 flex flex-col flex-grow">' +
+                    '<p class="text-[11px] text-on-surface-variant mb-0.5 flex items-center gap-0.5 truncate">' +
+                        '<span class="material-symbols-outlined text-[12px]">store</span>' + storeName +
+                    '</p>' +
+                    '<h3 class="text-xs font-semibold text-on-surface mb-1 line-clamp-2 leading-relaxed min-h-[32px]">' +
+                        '<a href="' + productUrl + '" class="hover:text-primary transition-colors">' + name + '</a>' +
+                    '</h3>' +
+                    '<div class="mt-auto flex items-end justify-between pt-1">' +
+                        '<span class="text-sm font-bold text-primary">' + APP.money(product.base_price) + '</span>' +
+                        actionBtn +
                     '</div>' +
                 '</div>' +
-            '</article>';
+            '</div>';
     }
 
     async function loadProducts() {

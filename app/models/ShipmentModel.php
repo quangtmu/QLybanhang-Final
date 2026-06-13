@@ -497,6 +497,8 @@ class ShipmentModel
 
         if ($nextStatus === ORDER_STATUS_DELIVERED && $currentOrderStatus !== ORDER_STATUS_DELIVERED) {
             self::incrementSoldCount($orderId);
+            require_once __DIR__ . '/LoyaltyModel.php';
+            LoyaltyModel::addPointsForOrder($orderId);
         }
 
         self::insertOrderStatusLog(

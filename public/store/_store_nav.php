@@ -21,6 +21,8 @@ if (!function_exists('storeNavLinkClass')) {
     <span>
         <a href="/store/dashboard.php" class="<?= storeNavLinkClass('/store/dashboard.php', $storeNavPath) ?>"><i class="bi bi-speedometer2"></i>Dashboard</a>
         <a href="/store/products.php" class="<?= storeNavLinkClass('/store/products.php', $storeNavPath) ?>"><i class="bi bi-box-seam"></i>Sản phẩm</a>
+        <a href="/store/reviews.php" class="<?= storeNavLinkClass('/store/reviews.php', $storeNavPath) ?>"><i class="bi bi-star"></i>Đánh giá</a>
+        <a href="/store/vouchers.php" class="<?= storeNavLinkClass('/store/vouchers.php', $storeNavPath) ?>"><i class="bi bi-tag"></i>Khuyến mãi</a>
         <a href="/store/orders.php" class="<?= storeNavLinkClass('/store/orders.php', $storeNavPath) ?>"><i class="bi bi-receipt"></i>Đơn hàng</a>
         <a href="/store/shipments.php" class="<?= storeNavLinkClass('/store/shipments.php', $storeNavPath) ?>"><i class="bi bi-truck"></i>Vận đơn</a>
         <a href="/store/invoices.php" class="<?= storeNavLinkClass('/store/invoices.php', $storeNavPath) ?>"><i class="bi bi-file-earmark-text"></i>Hóa đơn</a>

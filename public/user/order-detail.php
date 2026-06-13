@@ -167,10 +167,15 @@ if ($currentStatus === ORDER_STATUS_DELIVERED) {
             <?php
                 $address = $order['shipping_address_data'] ?? [];
                 $addressStr = implode(', ', array_filter([$address['address_line'] ?? '', $address['ward'] ?? '', $address['district'] ?? '', $address['province'] ?? '']));
+                $receiverName = $address['receiver_name'] ?? 'Khách hàng';
+                $receiverPhone = $address['receiver_phone'] ?? '';
             ?>
             <div class="text-sm text-on-surface-variant">
-                <span class="font-bold text-on-surface"><?= htmlspecialchars($order['buyer_name'] ?? 'Khách hàng') ?></span>
-                <br><span class="text-xs"><?= htmlspecialchars($order['shipping_address'] ?? $addressStr) ?></span>
+                <span class="font-bold text-on-surface"><?= htmlspecialchars($receiverName) ?></span>
+                <?php if ($receiverPhone): ?>
+                    <span class="text-on-surface-variant ml-1">- <?= htmlspecialchars($receiverPhone) ?></span>
+                <?php endif; ?>
+                <br><span class="text-xs mt-0.5 inline-block"><?= htmlspecialchars($addressStr) ?></span>
             </div>
         </div>
 

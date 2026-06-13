@@ -6,8 +6,15 @@ class StoreRegistrationModel
 {
     public static function submit(int $userId, array $data): int
     {
-        if (self::hasPendingRequest($userId)) {
-            throw new RuntimeException('Ban đang co đơn mở shop cho duyệt.');
+        $stmt = getDB()->prepare('SELECT status FROM store_registration_requests WHERE user_id = :user_id AND status IN ("pending", "approved") LIMIT 1');
+        $stmt->execute([':user_id' => $userId]);
+        $existing = $stmt->fetch();
+        if ($existing) {
+            if ($existing['status'] === 'pending') {
+                throw new RuntimeException('Bạn đã có đơn mở shop đang chờ duyệt.');
+            } else {
+                throw new RuntimeException('Tài khoản này đã mở shop thành công.');
+            }
         }
 
         $validated = self::validateRequestData($data);

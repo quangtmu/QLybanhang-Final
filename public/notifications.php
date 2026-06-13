@@ -74,14 +74,7 @@ $isStorePortal = in_array($user['user_type'], [USER_TYPE_STORE_APPROVED, USER_TY
     <?php if (!$isAdminPortal && !$isStorePortal): ?>
         <?php include __DIR__ . '/user/_tailwind_header.php'; ?>
     <?php elseif ($isAdminPortal): ?>
-        <nav class="topbar">
-            <strong>Admin Portal</strong>
-            <span>
-                <a href="/admin/dashboard.php">Trang chính</a>
-                <a href="/chat.php">Chat</a>
-                <a href="/logout.php">Đăng xuất</a>
-            </span>
-        </nav>
+        <?php include BASE_PATH . '/public/admin/_admin_nav.php'; ?>
     <?php elseif ($isStorePortal): ?>
         <?php include __DIR__ . '/store/_store_nav.php'; ?>
     <?php endif; ?>

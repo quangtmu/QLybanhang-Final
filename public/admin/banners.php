@@ -219,9 +219,21 @@ $canDelete = PermissionMiddleware::can($user, MODULE_BANNERS, 'delete');
                                 <td style="color: #475569; font-size: 13px;"><?= $dateStr ?></td>
                                 <td><strong><?= (int) $banner['position'] ?></strong></td>
                                 <td>
-                                    <span class="badge <?= (int) $banner['is_active'] === 1 ? 'badge-success' : 'badge-muted' ?>">
-                                        <?= (int) $banner['is_active'] === 1 ? 'Đang bật' : 'Đang tắt' ?>
-                                    </span>
+                                    <?php 
+                                        $isExpired = !empty($banner['display_to']) && strtotime($banner['display_to']) < time();
+                                        $isUpcoming = !empty($banner['display_from']) && strtotime($banner['display_from']) > time();
+                                    ?>
+                                    <?php if ((int) $banner['is_active'] === 1): ?>
+                                        <?php if ($isExpired): ?>
+                                            <span class="badge badge-error" style="background: #fee2e2; color: #b91c1c;">Đã hết hạn</span>
+                                        <?php elseif ($isUpcoming): ?>
+                                            <span class="badge badge-warning" style="background: #fef3c7; color: #b45309;">Chưa tới ngày</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-success">Đang hiển thị</span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span class="badge badge-muted">Đang tắt</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td style="text-align: right;">
                                     <div class="actions" style="justify-content: flex-end; margin: 0;">

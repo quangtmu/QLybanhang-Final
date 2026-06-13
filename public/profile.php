@@ -125,8 +125,14 @@ $isStorePortal = in_array($user['user_type'], [USER_TYPE_STORE_APPROVED, USER_TY
                     </button>
                 </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 pt-4 border-t border-border-subtle">
-                    <div class="flex items-center gap-3 p-3 bg-surface-container-low/50 rounded-lg">
+                <?php 
+                if (!$isAdminPortal && !$isStorePortal) {
+                    require_once __DIR__ . '/../app/models/LoyaltyModel.php';
+                    $loyaltyInfo = LoyaltyModel::getLoyaltyInfo((int) $user['id']);
+                }
+                ?>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-6 pt-4 border-t border-border-subtle">
+                    <div class="flex items-center gap-3 p-3 bg-surface-container-low/50 rounded-lg border border-border-subtle/50">
                         <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                             <span class="material-symbols-outlined text-[20px]">alternate_email</span>
                         </div>
@@ -135,13 +141,31 @@ $isStorePortal = in_array($user['user_type'], [USER_TYPE_STORE_APPROVED, USER_TY
                             <p class="text-sm font-semibold text-on-surface">@<?= htmlspecialchars($profile['username']) ?></p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 p-3 bg-surface-container-low/50 rounded-lg">
+                    <div class="flex items-center gap-3 p-3 bg-surface-container-low/50 rounded-lg border border-border-subtle/50">
                         <div class="w-10 h-10 rounded-full bg-buyer-orange/10 text-buyer-orange flex items-center justify-center">
                             <span class="material-symbols-outlined text-[20px]">shield_person</span>
                         </div>
                         <div>
                             <p class="text-[11px] text-on-surface-variant font-bold uppercase tracking-wider">Vai trò</p>
                             <p class="text-sm font-semibold text-on-surface"><?= htmlspecialchars(UiHelper::statusLabel((string) $profile['user_type'])) ?></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-surface-container-low/50 rounded-lg border border-border-subtle/50">
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-on-surface-variant font-bold uppercase tracking-wider">Hạng thành viên</p>
+                            <p class="text-sm font-semibold text-on-surface capitalize"><?= htmlspecialchars((string) ($loyaltyInfo['tier_level'] ?? 'bronze')) ?></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 bg-surface-container-low/50 rounded-lg border border-border-subtle/50">
+                        <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[20px]">stars</span>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-on-surface-variant font-bold uppercase tracking-wider">Điểm tích luỹ</p>
+                            <p class="text-sm font-semibold text-on-surface"><?= number_format((float) ($loyaltyInfo['current_points'] ?? 0), 0, ',', '.') ?> điểm</p>
                         </div>
                     </div>
                 </div>

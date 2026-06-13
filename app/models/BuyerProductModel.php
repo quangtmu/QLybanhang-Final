@@ -77,9 +77,9 @@ class BuyerProductModel
         $total = (int) $countStmt->fetchColumn();
 
         $stmt = $db->prepare(
-            "SELECT p.id, p.product_code, p.name, p.description, p.base_price, p.has_variants, p.main_image_url,
+            "SELECT p.id, p.product_code, p.name, p.slug, p.description, p.base_price, p.has_variants, p.main_image_url,
                     p.view_count, p.sold_count, p.created_at,
-                    c.name AS category_name,
+                    c.name AS category_name, c.slug AS category_slug,
                     sp.store_name, sp.store_slug, sp.rating AS store_rating
              FROM products p
              LEFT JOIN categories c ON c.id = p.category_id
@@ -129,6 +129,37 @@ class BuyerProductModel
             return null;
         }
 
+        $product['tags'] = self::tagsForProduct($id);
+        $product['variants'] = self::variantsForProduct($id);
+        self::incrementViewCount($id);
+
+        return $product;
+    }
+
+    public static function detailBySlug(string $slug): ?array
+    {
+        $stmt = getDB()->prepare(
+            'SELECT p.*, c.name AS category_name, c.slug AS category_slug, c.parent_id AS category_parent_id,
+                    sp.store_name, sp.store_slug, sp.logo_url, sp.rating
+             FROM products p
+             LEFT JOIN categories c ON c.id = p.category_id
+             LEFT JOIN store_profiles sp ON sp.user_id = p.store_id
+             WHERE p.slug = :slug
+               AND p.status = :approved_status
+               AND p.deleted_at IS NULL
+             LIMIT 1'
+        );
+        $stmt->execute([
+            ':slug' => $slug,
+            ':approved_status' => PRODUCT_STATUS_APPROVED,
+        ]);
+        $product = $stmt->fetch();
+
+        if (!$product) {
+            return null;
+        }
+
+        $id = (int) $product['id'];
         $product['tags'] = self::tagsForProduct($id);
         $product['variants'] = self::variantsForProduct($id);
         self::incrementViewCount($id);

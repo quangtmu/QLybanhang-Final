@@ -6,8 +6,25 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/_buyer_ui.php';
 
 $user = PermissionMiddleware::requireUserType(USER_TYPE_USER);
-$productId = (int) ($_GET['id'] ?? 0);
-$product = $productId > 0 ? BuyerProductModel::detail($productId) : null;
+
+$id = (int) ($_GET['id'] ?? 0);
+$slug = (string) ($_GET['slug'] ?? '');
+$product = null;
+
+if ($slug !== '') {
+    $product = BuyerProductModel::detailBySlug($slug);
+    if ($product) {
+        $id = (int) $product['id'];
+    }
+} elseif ($id > 0) {
+    $product = BuyerProductModel::detail($id);
+}
+
+if (!$product) {
+    header('Location: /user/products.php');
+    exit;
+}
+
 $relatedProducts = $product ? BuyerProductModel::relatedProducts($product, 8) : [];
 $reviewSummary = $product ? ReviewModel::summaryForProduct((int) $product['id']) : ['avg_rating' => 0.0, 'review_count' => 0];
 $reviews = $product ? ReviewModel::listForProduct((int) $product['id'], 8) : [];
@@ -19,6 +36,20 @@ if ($product) {
     ));
     $galleryImages = array_values(array_unique($galleryImages));
 }
+
+$activeFlashSale = class_exists('FlashSaleModel') ? FlashSaleModel::getActiveFlashSale() : null;
+$fsProduct = null;
+if ($activeFlashSale && $product) {
+    $fsProducts = FlashSaleModel::getProducts((int) $activeFlashSale['id']);
+    foreach ($fsProducts as $fsp) {
+        if ((int)$fsp['product_id'] === (int)$product['id']) {
+            $fsProduct = $fsp;
+            break;
+        }
+    }
+}
+$displayPrice = $fsProduct ? (float) $fsProduct['discount_price'] : (float) $product['base_price'];
+$hasFlashSale = $fsProduct !== null;
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -105,9 +136,26 @@ if ($product) {
                         <?= htmlspecialchars((string) $product['name']) ?>
                     </h1>
                     
-                    <div class="flex items-center bg-primary/5 p-3 rounded-xl border border-primary/10">
-                        <span class="text-2xl md:text-3xl text-primary font-bold"><?= number_format((float) $product['base_price'], 0, ',', '.') ?> ₫</span>
-                    </div>
+                    <?php if ($hasFlashSale): ?>
+                        <div class="bg-gradient-to-r from-error to-orange-500 p-3 rounded-t-xl text-white flex justify-between items-center relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 opacity-20">
+                                <span class="material-symbols-outlined text-[80px] fill">bolt</span>
+                            </div>
+                            <div class="flex items-center gap-2 relative z-10">
+                                <span class="material-symbols-outlined fill text-yellow-300">flash_on</span>
+                                <span class="font-bold uppercase tracking-wider">Đang Flash Sale</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-error/5 p-3 rounded-b-xl border border-error/20 mb-2">
+                            <span class="text-2xl md:text-3xl text-error font-bold"><?= number_format($displayPrice, 0, ',', '.') ?> ₫</span>
+                            <span class="text-on-surface-variant line-through text-sm"><?= number_format((float) $product['base_price'], 0, ',', '.') ?> ₫</span>
+                            <span class="bg-error text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">-<?= round(((float)$product['base_price'] - $displayPrice) / (float)$product['base_price'] * 100) ?>%</span>
+                        </div>
+                    <?php else: ?>
+                        <div class="flex items-center bg-primary/5 p-3 rounded-xl border border-primary/10">
+                            <span class="text-2xl md:text-3xl text-primary font-bold"><?= number_format((float) $product['base_price'], 0, ',', '.') ?> ₫</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="w-full h-px bg-border-subtle mb-4"></div>
@@ -323,6 +371,12 @@ if ($product) {
                                 </div>
                                 <?php if (!empty($review['comment'])): ?>
                                     <p class="text-on-surface-variant text-sm"><?= nl2br(htmlspecialchars((string) $review['comment'])) ?></p>
+                                <?php endif; ?>
+                                <?php if (!empty($review['store_reply'])): ?>
+                                    <div class="mt-2 bg-surface-container-lowest border border-border-subtle rounded-lg p-3 text-sm">
+                                        <p class="font-semibold text-on-surface mb-1 text-xs">Phản hồi từ Cửa hàng:</p>
+                                        <p class="text-on-surface-variant"><?= nl2br(htmlspecialchars((string) $review['store_reply'])) ?></p>
+                                    </div>
                                 <?php endif; ?>
                                 <div class="text-[11px] text-outline mt-1"><?= htmlspecialchars((string) $review['created_at']) ?></div>
                             </div>

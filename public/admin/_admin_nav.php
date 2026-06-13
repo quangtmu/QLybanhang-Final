@@ -60,7 +60,11 @@ if (!function_exists('adminNavBadge')) {
         <a href="/admin/tags.php" class="<?= adminNavLinkClass('/admin/tags.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-tags"></i> Quản lý tags</a>
 
         <a href="/admin/banners.php" class="<?= adminNavLinkClass('/admin/banners.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-megaphone"></i> Quản lý Banner</a>
+        <a href="/admin/flash-sales.php" class="<?= adminNavLinkClass('/admin/flash-sales.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-lightning-charge"></i> Quản lý Flash Sale</a>
+        <a href="/admin/vouchers.php" class="<?= adminNavLinkClass('/admin/vouchers.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-ticket-perforated"></i> Quản lý Mã giảm giá</a>
 
+        <?php $unreadAdminNotifications = isset($user['id']) && class_exists('NotificationModel') ? NotificationModel::unreadCount((int) $user['id']) : 0; ?>
+        <a href="/notifications.php" class="<?= adminNavLinkClass('/notifications.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-bell"></i> Thông báo<?= adminNavBadge($unreadAdminNotifications) ?></a>
         <a href="/chat.php" class="<?= adminNavLinkClass('/chat.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-chat-dots"></i> Tin nhắn</a>
         <a href="/profile.php" class="<?= adminNavLinkClass('/profile.php', $adminNavPath, $adminNavTab) ?>"><i class="bi bi-person-circle"></i> Hồ sơ</a>
         <a href="/logout.php"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>

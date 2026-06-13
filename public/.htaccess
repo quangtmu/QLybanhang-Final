@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect /san-pham/slug to product-detail.php
+    RewriteRule ^san-pham/([a-zA-Z0-9-]+)$ user/product-detail.php?slug=$1 [L,QSA]
+
+    # Redirect /danh-muc/slug to products.php
+    RewriteRule ^danh-muc/([a-zA-Z0-9-]+)$ user/products.php?category_slug=$1 [L,QSA]
+
+    # Optional: Fallback for index
+    # RewriteRule ^$ index.php [L]
+</IfModule>

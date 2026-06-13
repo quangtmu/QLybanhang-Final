@@ -9,6 +9,36 @@ class UiHelper
         return number_format((float) ($value ?? 0), 0, ',', '.') . ' đ';
     }
 
+    public static function slugify(string $string): string
+    {
+        $string = mb_strtolower($string, 'UTF-8');
+        $string = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $string);
+        $string = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $string);
+        $string = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $string);
+        $string = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $string);
+        $string = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $string);
+        $string = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $string);
+        $string = preg_replace('/(đ)/', 'd', $string);
+        $string = preg_replace('/[^a-z0-9\-]+/', '-', $string);
+        return trim((string) preg_replace('/-+/', '-', $string), '-');
+    }
+
+    public static function productUrl(int $id, string $slug = null): string
+    {
+        if ($slug) {
+            return '/san-pham/' . $slug;
+        }
+        return '/user/product-detail.php?id=' . $id;
+    }
+
+    public static function categoryUrl(int $id, string $slug = null): string
+    {
+        if ($slug) {
+            return '/danh-muc/' . $slug;
+        }
+        return '/user/products.php?category=' . $id;
+    }
+
     public static function statusLabel(?string $status): string
     {
         return match ((string) $status) {

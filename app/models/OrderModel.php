@@ -21,32 +21,94 @@ class OrderModel
 
         $shippingAddress = self::shippingAddress($data);
         $note = trim((string) ($data['note'] ?? '')) ?: null;
-        $shippingFee = max(0, (float) ($data['shipping_fee'] ?? 0));
-        $discountAmount = max(0, (float) ($data['discount_amount'] ?? 0));
+
+        $preparedItems = self::prepareItemsForOrder($items);
+        $totalItemsAmount = array_reduce($preparedItems, fn($c, $i) => $c + $i['subtotal'], 0);
+
+        require_once __DIR__ . '/LoyaltyModel.php';
+        $loyaltyInfo = LoyaltyModel::getLoyaltyInfo($buyerId);
+        $pointsAvailable = (int) $loyaltyInfo['current_points'];
+        $pointsToUse = 0;
+        $loyaltyDiscount = 0;
+        
+        if (!empty($data['use_loyalty_points']) && $pointsAvailable > 0 && $totalItemsAmount > 0) {
+            $maxPointsNeeded = ceil($totalItemsAmount / LoyaltyModel::VND_PER_POINT);
+            $pointsToUse = (int) min($pointsAvailable, $maxPointsNeeded);
+            $loyaltyDiscount = $pointsToUse * LoyaltyModel::VND_PER_POINT;
+        }
+        
+        $voucherCode = trim((string) ($data['voucher_code'] ?? ''));
+        $voucherInfo = null;
+        $globalVoucherDiscount = 0;
+        if ($voucherCode !== '') {
+            require_once __DIR__ . '/VoucherModel.php';
+            $voucherInfo = VoucherModel::findByCode($voucherCode);
+            if (!$voucherInfo) {
+                throw new RuntimeException('Mã giảm giá không hợp lệ.');
+            }
+            if ($voucherInfo['store_id'] === null) {
+                $globalVoucherDiscount = VoucherModel::validateAndCalculateDiscount($voucherInfo, $totalItemsAmount, null, $buyerId);
+            }
+        }
+
+        $shippingMethod = $data['shipping_method'] ?? 'standard';
+        $baseShippingFee = $shippingMethod === 'express' ? 50000.0 : 30000.0;
         $createdOrders = [];
         $db = getDB();
         $db->beginTransaction();
 
         try {
-            $preparedItems = self::prepareItemsForOrder($items);
             $groups = self::groupByStore($preparedItems);
+            
+            $pointsRemainingToDeduct = $pointsToUse;
 
             foreach ($groups as $storeId => $groupItems) {
+                $groupTotal = array_reduce($groupItems, fn($c, $i) => $c + $i['subtotal'], 0);
+                $ratio = $totalItemsAmount > 0 ? ($groupTotal / $totalItemsAmount) : 0;
+                
+                $orderShipping = round($baseShippingFee * $ratio);
+                
+                $groupDiscount = 0;
+                if ($voucherInfo) {
+                    if ($voucherInfo['store_id'] === null) {
+                        $groupDiscount += round($globalVoucherDiscount * $ratio);
+                    } elseif ((int)$voucherInfo['store_id'] === (int)$storeId) {
+                        $groupDiscount += VoucherModel::validateAndCalculateDiscount($voucherInfo, $groupTotal, (int)$storeId, $buyerId);
+                    }
+                }
+                
+                $orderDiscount = $groupDiscount + round($loyaltyDiscount * $ratio);
+                $orderPointsUsed = round($pointsToUse * $ratio);
+                
                 $orderId = self::insertOrder(
                     $buyerId,
                     (int) $storeId,
                     $groupItems,
                     $shippingAddress,
                     $note,
-                    $shippingFee,
-                    $discountAmount
+                    $orderShipping,
+                    $orderDiscount
                 );
+                
+                if ($orderPointsUsed > 0) {
+                    LoyaltyModel::usePoints($buyerId, (int) $orderPointsUsed, $orderId);
+                    $pointsRemainingToDeduct -= $orderPointsUsed;
+                }
+
                 self::insertOrderItems($orderId, $groupItems);
                 self::insertStatusLog($orderId, null, ORDER_STATUS_PENDING, 'Buyer dat hang', $buyerId, USER_TYPE_USER);
                 NotificationModel::notifyOrderCreated($orderId);
                 NotificationModel::notifyAdminOrderCreated($orderId);
 
                 $createdOrders[] = self::detail($buyerId, $orderId);
+            }
+            
+            if ($pointsRemainingToDeduct > 0 && !empty($createdOrders)) {
+                 LoyaltyModel::usePoints($buyerId, (int) $pointsRemainingToDeduct, (int) $createdOrders[0]['id']);
+            }
+            
+            if ($voucherInfo) {
+                 VoucherModel::incrementUsage((int) $voucherInfo['id']);
             }
 
             if ($selectedCartItemIds) {
@@ -220,6 +282,9 @@ class OrderModel
             self::insertStatusLog($orderId, $order['status'], ORDER_STATUS_DELIVERED, 'Buyer xac nhan đã nhan hang', $buyerId, USER_TYPE_USER);
             NotificationModel::notifyOrderStatus($orderId, (string) $order['status'], ORDER_STATUS_DELIVERED, 'Buyer xac nhan đã nhan hang', [$buyerId]);
 
+            require_once __DIR__ . '/LoyaltyModel.php';
+            LoyaltyModel::addPointsForOrder($orderId);
+
             $db->commit();
         } catch (Throwable $e) {
             $db->rollBack();
@@ -376,6 +441,21 @@ class OrderModel
             }
 
             $unitPrice = $variantId !== null ? (float) $row['variant_price'] : (float) $row['base_price'];
+
+            require_once __DIR__ . '/FlashSaleModel.php';
+            if (class_exists('FlashSaleModel')) {
+                $activeFlashSale = FlashSaleModel::getActiveFlashSale();
+                if ($activeFlashSale) {
+                    $fsProducts = FlashSaleModel::getProducts((int) $activeFlashSale['id']);
+                    foreach ($fsProducts as $fsp) {
+                        if ((int)$fsp['product_id'] === (int)$productId) {
+                            $unitPrice = (float) $fsp['discount_price'];
+                            break;
+                        }
+                    }
+                }
+            }
+
             $prepared[] = [
                 'product_id' => $productId,
                 'variant_id' => $variantId,

@@ -69,6 +69,13 @@ class ProductManagementModel
                 ':is_recommended' => $payload['is_recommended'],
             ]);
             $productId = (int) $db->lastInsertId();
+            
+            require_once __DIR__ . '/../controllers/UiHelper.php';
+            $slug = UiHelper::slugify($payload['name']) . '-' . $productId;
+            $db->prepare('UPDATE products SET slug = :slug WHERE id = :id')->execute([
+                ':slug' => $slug,
+                ':id' => $productId,
+            ]);
 
             self::replaceTags($productId, $payload['tag_ids']);
             self::replaceVariants($productId, $payload['variants']);
@@ -146,6 +153,13 @@ class ProductManagementModel
                 ':width' => $payload['width'],
                 ':height' => $payload['height'],
                 ':is_recommended' => $payload['is_recommended'],
+            ]);
+
+            require_once __DIR__ . '/../controllers/UiHelper.php';
+            $slug = UiHelper::slugify($payload['name']) . '-' . $id;
+            $db->prepare('UPDATE products SET slug = :slug WHERE id = :id')->execute([
+                ':slug' => $slug,
+                ':id' => $id,
             ]);
 
             self::replaceTags($id, $payload['tag_ids']);

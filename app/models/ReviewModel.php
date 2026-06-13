@@ -31,7 +31,7 @@ class ReviewModel
         }
 
         $stmt = getDB()->prepare(
-            'SELECT pr.rating, pr.comment, pr.created_at, u.full_name, u.username
+            'SELECT pr.id, pr.rating, pr.comment, pr.created_at, pr.store_reply, pr.store_replied_at, u.full_name, u.username
              FROM product_reviews pr
              INNER JOIN users u ON u.id = pr.buyer_id
              WHERE pr.product_id = :product_id
@@ -43,6 +43,73 @@ class ReviewModel
         $stmt->execute();
 
         return $stmt->fetchAll();
+    }
+
+    public static function reviewsForStore(int $storeId, array $filters = []): array
+    {
+        if (!self::tableExists()) {
+            return ['items' => [], 'pagination' => ['page' => 1, 'total_pages' => 0]];
+        }
+
+        $page = max(1, (int) ($filters['page'] ?? 1));
+        $limit = max(1, min(50, (int) ($filters['limit'] ?? 20)));
+        $offset = ($page - 1) * $limit;
+
+        $where = ['p.store_id = :store_id'];
+        $params = [':store_id' => $storeId];
+
+        if (($filters['is_replied'] ?? '') === '0') {
+            $where[] = 'pr.store_reply IS NULL';
+        } elseif (($filters['is_replied'] ?? '') === '1') {
+            $where[] = 'pr.store_reply IS NOT NULL';
+        }
+
+        if (($filters['rating'] ?? '') !== '') {
+            $where[] = 'pr.rating = :rating';
+            $params[':rating'] = (int) $filters['rating'];
+        }
+
+        $whereStr = implode(' AND ', $where);
+
+        $countStmt = getDB()->prepare("SELECT COUNT(*) FROM product_reviews pr INNER JOIN products p ON p.id = pr.product_id WHERE $whereStr");
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        $stmt = getDB()->prepare(
+            "SELECT pr.*, u.full_name as buyer_name, p.name as product_name
+             FROM product_reviews pr
+             INNER JOIN products p ON p.id = pr.product_id
+             INNER JOIN users u ON u.id = pr.buyer_id
+             WHERE $whereStr
+             ORDER BY pr.created_at DESC
+             LIMIT :limit OFFSET :offset"
+        );
+        foreach ($params as $k => $v) {
+            $stmt->bindValue($k, $v);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'items' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'pagination' => ['page' => $page, 'total_pages' => ceil($total / $limit) ?: 1]
+        ];
+    }
+
+    public static function replyToReview(int $storeId, int $reviewId, string $reply): void
+    {
+        $stmt = getDB()->prepare(
+            'UPDATE product_reviews pr
+             INNER JOIN products p ON p.id = pr.product_id
+             SET pr.store_reply = :reply, pr.store_replied_at = CURRENT_TIMESTAMP
+             WHERE pr.id = :id AND p.store_id = :store_id'
+        );
+        $stmt->execute([
+            ':id' => $reviewId,
+            ':store_id' => $storeId,
+            ':reply' => trim($reply) !== '' ? trim($reply) : null,
+        ]);
     }
 
     public static function reviewsForOrder(int $buyerId, int $orderId): array

@@ -6,9 +6,20 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/_buyer_ui.php';
 
 $user = PermissionMiddleware::requireUserType(USER_TYPE_USER);
+$categorySlug = (string) ($_GET['category_slug'] ?? '');
+$categoryId = $_GET['category_id'] ?? '';
+if ($categorySlug !== '') {
+    $stmt = getDB()->prepare('SELECT id FROM categories WHERE slug = :slug LIMIT 1');
+    $stmt->execute([':slug' => $categorySlug]);
+    $foundId = $stmt->fetchColumn();
+    if ($foundId) {
+        $categoryId = (int) $foundId;
+    }
+}
+
 $filters = [
     'search' => $_GET['search'] ?? ($_GET['q'] ?? ''),
-    'category_id' => $_GET['category_id'] ?? '',
+    'category_id' => $categoryId,
     'tag_id' => $_GET['tag_id'] ?? '',
     'min_price' => $_GET['min_price'] ?? '',
     'max_price' => $_GET['max_price'] ?? '',
@@ -96,7 +107,7 @@ $tags = BuyerProductModel::activeTags();
                     $hasVariants = (int)($product['has_variants'] ?? 0) === 1;
                     ?>
                     <div class="group bg-white rounded-xl overflow-hidden border border-border-subtle hover:shadow-md transition-all duration-300 flex flex-col h-full hover:-translate-y-0.5">
-                        <a href="/user/product-detail.php?id=<?= (int)$product['id'] ?>" class="block">
+                        <a href="<?= UiHelper::productUrl((int)$product['id'], $product['slug'] ?? null) ?>" class="block">
                             <div class="aspect-square bg-surface-container-low overflow-hidden relative">
                                 <img alt="<?= htmlspecialchars((string)$product['name']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<?= htmlspecialchars((string)$imgUrl) ?>"/>
                                 <?php if ($sold > 0): ?>
@@ -112,14 +123,14 @@ $tags = BuyerProductModel::activeTags();
                                 <?= htmlspecialchars((string)($product['store_name'] ?? 'Shop')) ?>
                             </p>
                             <h3 class="text-xs font-semibold text-on-surface mb-1 line-clamp-2 leading-relaxed min-h-[32px]">
-                                <a href="/user/product-detail.php?id=<?= (int)$product['id'] ?>" class="hover:text-primary transition-colors">
+                                <a href="<?= UiHelper::productUrl((int)$product['id'], $product['slug'] ?? null) ?>" class="hover:text-primary transition-colors">
                                     <?= htmlspecialchars((string)$product['name']) ?>
                                 </a>
                             </h3>
                             <div class="mt-auto flex items-end justify-between pt-1">
                                 <span class="text-sm font-bold text-primary"><?= number_format((float)$product['base_price']) ?>đ</span>
                                 <?php if ($hasVariants): ?>
-                                    <a href="/user/product-detail.php?id=<?= (int)$product['id'] ?>" class="w-8 h-8 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-container transition-all shadow-sm active:scale-95" title="Chọn mua">
+                                    <a href="<?= UiHelper::productUrl((int)$product['id'], $product['slug'] ?? null) ?>" class="w-8 h-8 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary-container transition-all shadow-sm active:scale-95" title="Chọn mua">
                                         <span class="material-symbols-outlined text-[16px]">shopping_bag</span>
                                     </a>
                                 <?php else: ?>
@@ -157,6 +168,6 @@ $tags = BuyerProductModel::activeTags();
     </footer>
 
     <script src="/assets/js/global.js?v=20260609-3"></script>
-    <script src="/assets/js/buyer-products.js?v=20260609-6"></script>
+    <script src="/assets/js/buyer-products.js?v=20260613-1"></script>
 </body>
 </html>

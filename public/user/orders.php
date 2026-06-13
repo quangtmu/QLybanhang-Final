@@ -72,6 +72,10 @@ $pagination = $result['pagination'];
 $csrfToken = AuthController::csrfToken();
 $activeOrderTab = (($_GET['tab'] ?? '') === 'checkout' || isset($_GET['checkout'])) ? 'checkout' : 'manage';
 $checkoutContext = buildCheckoutContext($cart, $_GET);
+
+require_once __DIR__ . '/../../app/models/VoucherModel.php';
+$cartStoreIds = array_values(array_unique(array_column($checkoutContext['items'], 'store_id')));
+$activeVouchers = VoucherModel::getActiveVouchersForStores($cartStoreIds, $buyerId);
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -177,14 +181,168 @@ $checkoutContext = buildCheckoutContext($cart, $_GET);
                             <label class="flex items-center gap-2 text-sm cursor-pointer"><input type="radio" name="payment_method" value="bank_transfer" class="text-primary"> Chuyển khoản</label>
                         </div>
                     </div>
-                    <label class="block">
+                    <?php
+                    require_once __DIR__ . '/../../app/models/LoyaltyModel.php';
+                    $loyaltyInfo = LoyaltyModel::getLoyaltyInfo($buyerId);
+                    if ($loyaltyInfo['current_points'] > 0):
+                        $pointValue = $loyaltyInfo['current_points'] * LoyaltyModel::VND_PER_POINT;
+                    ?>
+                    <div class="bg-primary/5 rounded-xl p-3 border border-primary/20">
+                        <label class="flex items-start gap-2 text-sm cursor-pointer">
+                            <input type="checkbox" name="use_loyalty_points" value="1" class="text-primary mt-0.5 rounded border-primary/30 focus:ring-primary/20">
+                            <div>
+                                <span class="font-bold text-primary">Sử dụng điểm Loyalty</span>
+                                <p class="text-xs text-on-surface-variant mt-0.5">Bạn có <?= number_format((float) $loyaltyInfo['current_points'], 0, ',', '.') ?> điểm (Tương đương <?= number_format((float) $pointValue, 0, ',', '.') ?>₫). Hệ thống sẽ tự động trừ tối đa có thể.</p>
+                            </div>
+                        </label>
+                    </div>
+                    <?php endif; ?>
+                    <div class="bg-surface-container-low rounded-xl p-3 border border-border-subtle">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-bold text-on-surface">Mã Khuyến Mãi</p>
+                            <button type="button" onclick="document.getElementById('voucher-modal').style.display='flex'" class="text-xs text-primary font-bold hover:underline">Chọn mã ưu đãi</button>
+                        </div>
+                        <input type="text" name="voucher_code" id="voucher_code_input" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/10" placeholder="Nhập hoặc chọn mã giảm giá">
+                    </div>
+                    <label class="block mb-4">
                         <span class="text-xs font-bold text-on-surface-variant">Ghi chú</span>
                         <textarea name="note" rows="2" class="mt-1 w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/10" placeholder="Ghi chú cho shop..."></textarea>
                     </label>
-                    <button type="submit" class="w-full sm:w-auto bg-primary text-white font-semibold text-sm px-6 py-2.5 rounded-xl hover:bg-primary-container transition-all shadow-sm flex items-center justify-center gap-2 active:scale-[0.98]">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span>Đặt hàng
+
+                    <div class="bg-surface-container-low rounded-xl p-4 border border-border-subtle mb-4">
+                        <h3 class="text-sm font-bold text-on-surface mb-3 border-b border-border-subtle pb-2">Chi tiết thanh toán</h3>
+                        <div class="flex justify-between items-center mb-2 text-sm">
+                            <span class="text-on-surface-variant">Tổng tiền hàng:</span>
+                            <span class="font-semibold text-on-surface" id="calc-subtotal"><?= number_format((float)$checkoutContext['summary']['total'], 0, ',', '.') ?>đ</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2 text-sm">
+                            <span class="text-on-surface-variant">Phí vận chuyển:</span>
+                            <span class="font-semibold text-on-surface" id="calc-shipping">0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2 text-sm hidden" id="calc-loyalty-row">
+                            <span class="text-on-surface-variant">Điểm Loyalty:</span>
+                            <span class="font-semibold text-success" id="calc-loyalty-discount">- 0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-3 text-sm hidden" id="calc-voucher-row">
+                            <span class="text-on-surface-variant">Voucher giảm:</span>
+                            <span class="font-semibold text-success" id="calc-voucher-discount">- 0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-border-subtle pt-3">
+                            <span class="text-base font-bold text-on-surface">Tổng thanh toán:</span>
+                            <span class="text-xl font-bold text-primary" id="calc-final-total"><?= number_format((float)$checkoutContext['summary']['total'], 0, ',', '.') ?>đ</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary text-white font-bold text-base px-6 py-3.5 rounded-xl hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2 active:scale-[0.98]">
+                        <span class="material-symbols-outlined text-[20px]">check_circle</span>Đặt Hàng Ngay
                     </button>
                 </form>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const baseTotal = <?= (float)$checkoutContext['summary']['total'] ?>;
+                        const availablePoints = <?= isset($loyaltyInfo['current_points']) ? (int)$loyaltyInfo['current_points'] : 0 ?>;
+                        const pointValue = <?= class_exists('LoyaltyModel') ? LoyaltyModel::VND_PER_POINT : 1 ?>;
+                        const vouchers = <?= json_encode($activeVouchers ?? []) ?>;
+                        const shippingRates = { 'standard': 30000, 'express': 50000 };
+
+                        const shippingInputs = document.querySelectorAll('input[name="shipping_method"]');
+                        const loyaltyInput = document.querySelector('input[name="use_loyalty_points"]');
+                        const voucherInput = document.getElementById('voucher_code_input');
+
+                        function calculateTotal() {
+                            let total = baseTotal;
+                            
+                            // Shipping
+                            const selectedShipping = document.querySelector('input[name="shipping_method"]:checked')?.value || 'standard';
+                            const shippingFee = shippingRates[selectedShipping] || 0;
+                            total += shippingFee;
+                            document.getElementById('calc-shipping').textContent = new Intl.NumberFormat('vi-VN').format(shippingFee) + 'đ';
+
+                            // Voucher
+                            let voucherDiscount = 0;
+                            const voucherCode = voucherInput.value.trim().toUpperCase();
+                            const voucher = vouchers.find(v => v.code.toUpperCase() === voucherCode);
+                            if (voucher) {
+                                if (baseTotal >= parseFloat(voucher.min_order_amount)) {
+                                    if (voucher.discount_type === 'percent') {
+                                        voucherDiscount = baseTotal * (parseFloat(voucher.discount_amount) / 100);
+                                        const maxAmount = parseFloat(voucher.max_discount_amount);
+                                        if (maxAmount > 0 && voucherDiscount > maxAmount) {
+                                            voucherDiscount = maxAmount;
+                                        }
+                                    } else {
+                                        voucherDiscount = parseFloat(voucher.discount_amount);
+                                    }
+                                    voucherDiscount = Math.min(voucherDiscount, baseTotal);
+                                }
+                            }
+                            total -= voucherDiscount;
+                            if (voucherDiscount > 0) {
+                                document.getElementById('calc-voucher-row').classList.remove('hidden');
+                                document.getElementById('calc-voucher-discount').textContent = '- ' + new Intl.NumberFormat('vi-VN').format(voucherDiscount) + 'đ';
+                            } else {
+                                document.getElementById('calc-voucher-row').classList.add('hidden');
+                            }
+
+                            // Loyalty
+                            let loyaltyDiscount = 0;
+                            if (loyaltyInput && loyaltyInput.checked) {
+                                const maxPointsNeeded = Math.ceil(baseTotal / pointValue);
+                                const pointsToUse = Math.min(availablePoints, maxPointsNeeded);
+                                loyaltyDiscount = pointsToUse * pointValue;
+                                total -= loyaltyDiscount;
+                            }
+                            if (loyaltyDiscount > 0) {
+                                document.getElementById('calc-loyalty-row').classList.remove('hidden');
+                                document.getElementById('calc-loyalty-discount').textContent = '- ' + new Intl.NumberFormat('vi-VN').format(loyaltyDiscount) + 'đ';
+                            } else {
+                                document.getElementById('calc-loyalty-row').classList.add('hidden');
+                            }
+
+                            total = Math.max(0, total);
+                            document.getElementById('calc-final-total').textContent = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
+                        }
+
+                        shippingInputs.forEach(el => el.addEventListener('change', calculateTotal));
+                        if (loyaltyInput) loyaltyInput.addEventListener('change', calculateTotal);
+                        voucherInput.addEventListener('input', calculateTotal);
+                        voucherInput.addEventListener('change', calculateTotal);
+
+                        // trigger initial calculation
+                        calculateTotal();
+                    });
+                </script>
+
+                <!-- Voucher Modal -->
+                <div id="voucher-modal" style="display: none;" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col shadow-xl">
+                        <div class="flex items-center justify-between p-4 border-b border-border-subtle">
+                            <h2 class="text-lg font-bold text-on-surface">Chọn Voucher</h2>
+                            <button type="button" onclick="document.getElementById('voucher-modal').style.display='none'" class="text-on-surface-variant hover:text-on-surface">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
+                            <?php if (empty($activeVouchers)): ?>
+                                <p class="text-center text-sm text-on-surface-variant py-4">Không có mã giảm giá nào khả dụng.</p>
+                            <?php else: ?>
+                                <?php foreach ($activeVouchers as $v): ?>
+                                    <div class="border border-primary/20 bg-primary/5 rounded-xl p-3 flex items-center gap-3 relative overflow-hidden group cursor-pointer hover:border-primary/50 transition-colors" onclick="const vi = document.getElementById('voucher_code_input'); vi.value='<?= htmlspecialchars((string)$v['code']) ?>'; vi.dispatchEvent(new Event('input')); document.getElementById('voucher-modal').style.display='none';">
+                                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <span class="material-symbols-outlined text-primary">local_activity</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-bold text-primary"><?= htmlspecialchars((string)$v['code']) ?></div>
+                                            <div class="text-xs text-on-surface-variant">Giảm <?= $v['discount_type'] === 'percent' ? $v['discount_amount'].'%' : number_format((float)$v['discount_amount']).'đ' ?> - Đơn tối thiểu <?= number_format((float)$v['min_order_amount']) ?>đ</div>
+                                        </div>
+                                        <button type="button" class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-primary-container">Dùng</button>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             <?php endif; ?>
         </section>
         <?php endif; ?>
@@ -304,6 +462,20 @@ function buildBuyNowCheckoutItem(int $productId, int $variantId, int $quantity):
 
     $unitPrice = $variant ? (float) $variant['price'] : (float) $product['base_price'];
 
+    require_once __DIR__ . '/../../app/models/FlashSaleModel.php';
+    if (class_exists('FlashSaleModel')) {
+        $activeFlashSale = FlashSaleModel::getActiveFlashSale();
+        if ($activeFlashSale) {
+            $fsProducts = FlashSaleModel::getProducts((int) $activeFlashSale['id']);
+            foreach ($fsProducts as $fsp) {
+                if ((int)$fsp['product_id'] === (int)$product['id']) {
+                    $unitPrice = (float) $fsp['discount_price'];
+                    break;
+                }
+            }
+        }
+    }
+
     return [
         'id' => 0,
         'product_id' => (int) $product['id'],
@@ -319,6 +491,8 @@ function buildBuyNowCheckoutItem(int $productId, int $variantId, int $quantity):
         'unit_price' => $unitPrice,
         'subtotal' => $unitPrice * $quantity,
         'is_available' => true,
+        'is_flash_sale' => class_exists('FlashSaleModel') && isset($activeFlashSale) && $unitPrice !== ((float) ($variant ? $variant['price'] : $product['base_price'])),
+        'original_price' => (float) ($variant ? $variant['price'] : $product['base_price']),
     ];
 }
 
@@ -398,6 +572,12 @@ function renderCheckoutCart(array $checkout): string
         $image = htmlspecialchars((string) ($item['main_image_url'] ?? ''));
         $imageHtml = $image !== '' ? '<img src="' . $image . '" alt="' . $name . '" class="w-full h-full object-cover rounded-lg">' : '<div class="w-full h-full flex items-center justify-center bg-surface-container-highest rounded-lg"><span class="material-symbols-outlined text-outline-variant">image</span></div>';
 
+        $priceHtml = '<span class="text-sm font-bold text-primary flex-shrink-0">' . $subtotal . 'đ</span>';
+        if (!empty($item['is_flash_sale']) && isset($item['original_price'])) {
+            $origSubtotal = number_format((float)($item['original_price'] * $quantity), 0, ',', '.');
+            $priceHtml = '<div class="flex flex-col items-end"><span class="text-[11px] text-on-surface-variant line-through">' . $origSubtotal . 'đ</span><span class="text-sm font-bold text-error flex-shrink-0">' . $subtotal . 'đ</span></div>';
+        }
+
         $html .= <<<HTML
         <div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-border-subtle">
             <div class="w-14 h-14 flex-shrink-0 overflow-hidden">{$imageHtml}</div>
@@ -406,7 +586,7 @@ function renderCheckoutCart(array $checkout): string
                 <p class="text-sm font-semibold text-on-surface truncate">{$name}</p>
                 <p class="text-xs text-on-surface-variant">{$variant} · SL {$quantity}</p>
             </div>
-            <span class="text-sm font-bold text-primary flex-shrink-0">{$subtotal}đ</span>
+            {$priceHtml}
         </div>
 HTML;
     }
@@ -434,6 +614,7 @@ function renderOrders(array $orders, string $csrfToken, int $buyerId): string
         $store = htmlspecialchars((string) ($order['store_name'] ?: 'Shop'));
         $statusLabel = htmlspecialchars(UiHelper::statusLabel((string) $order['status']));
         $finalAmount = number_format((float) $order['final_amount'], 0, ',', '.');
+        $totalAmountFormatted = number_format((float) $order['total_amount'], 0, ',', '.');
         $orderId = (int) $order['id'];
         
         // Status styling
@@ -493,17 +674,30 @@ HTML;
 HTML;
         }
 
+        $footerSubtotalHtml = '';
+        if ((float)$order['total_amount'] != (float)$order['final_amount']) {
+            $footerSubtotalHtml = <<<HTML
+                    <div class="flex items-center gap-1 text-[11px] text-on-surface-variant/70">
+                        <span>Tiền hàng:</span>
+                        <span class="line-through">{$totalAmountFormatted}₫</span>
+                    </div>
+HTML;
+        }
+
         $html .= <<<HTML
             </a>
 
             <!-- Footer -->
             <div class="px-4 py-3 bg-surface-container-low/20 border-t border-border-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs text-on-surface-variant">Tổng:</span>
-                    <span class="text-lg font-bold text-primary">{$finalAmount}₫</span>
+                <div class="flex flex-col">
+{$footerSubtotalHtml}
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-sm text-on-surface-variant font-medium">Thành tiền:</span>
+                        <span class="text-lg font-bold text-primary">{$finalAmount}₫</span>
+                    </div>
                 </div>
                 
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
 HTML;
         
         if ($order['status'] === ORDER_STATUS_PENDING) {

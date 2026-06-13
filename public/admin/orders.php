@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $room = ChatModel::roomForOrder($orderId, $user);
                     
                     $addr = $orderInfo['shipping_address_data'] ?? [];
-                    $phone = $addr['phone'] ?? 'Không có SĐT';
-                    $receiver = $addr['name'] ?? $addr['full_name'] ?? 'Không rõ';
+                    $phone = $addr['receiver_phone'] ?? $addr['phone'] ?? 'Không có SĐT';
+                    $receiver = $addr['receiver_name'] ?? $addr['name'] ?? $addr['full_name'] ?? 'Không rõ';
                     $itemsStr = '';
                     foreach ($orderInfo['order_items'] as $it) {
                         $itemsStr .= "- " . $it['product_name'] . " (SL: " . $it['quantity'] . ")\n";
@@ -469,9 +469,9 @@ $canCancel = PermissionMiddleware::can($user, MODULE_ORDERS, 'update');
                 document.getElementById('modal-order-status').value = o.status;
                 
                 let addr = o.shipping_address_data || {};
-                let phone = addr.phone || '';
-                let address = addr.address || addr.street || '';
-                document.getElementById('modal-ship-name').value = addr.name || addr.full_name || '';
+                let phone = addr.receiver_phone || addr.phone || '';
+                let address = [addr.address_line || addr.address || addr.street || '', addr.ward || '', addr.district || '', addr.province || ''].filter(Boolean).join(', ');
+                document.getElementById('modal-ship-name').value = addr.receiver_name || addr.name || addr.full_name || '';
                 document.getElementById('modal-ship-phone').value = phone;
                 document.getElementById('modal-ship-address').value = address;
                 

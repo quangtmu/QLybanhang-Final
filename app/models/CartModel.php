@@ -114,12 +114,19 @@ class CartModel
                     p.main_image_url, p.store_id,
                     pv.type_label, pv.color, pv.size, pv.sku, pv.price AS variant_price,
                     pv.stock_quantity, pv.is_active AS variant_active,
-                    sp.store_name
+                    sp.store_name,
+                    fsp.discount_price AS flash_sale_price
              FROM carts c
              INNER JOIN cart_items ci ON ci.cart_id = c.id
              INNER JOIN products p ON p.id = ci.product_id
              LEFT JOIN product_variants pv ON pv.id = ci.variant_id
              LEFT JOIN store_profiles sp ON sp.user_id = p.store_id
+             LEFT JOIN (
+                 SELECT id FROM flash_sales 
+                 WHERE is_active = 1 AND start_date <= NOW() AND end_date >= NOW() 
+                 ORDER BY start_date ASC LIMIT 1
+             ) fs ON 1=1
+             LEFT JOIN flash_sale_products fsp ON fsp.product_id = p.id AND fsp.flash_sale_id = fs.id
              WHERE c.buyer_id = :buyer_id
              ORDER BY ci.created_at DESC'
         );
@@ -127,7 +134,10 @@ class CartModel
         $items = $stmt->fetchAll();
 
         foreach ($items as &$item) {
-            $item['unit_price'] = $item['variant_id'] ? (float) $item['variant_price'] : (float) $item['base_price'];
+            $basePrice = $item['variant_id'] ? (float) $item['variant_price'] : (float) $item['base_price'];
+            $item['unit_price'] = $item['flash_sale_price'] !== null ? (float) $item['flash_sale_price'] : $basePrice;
+            $item['is_flash_sale'] = $item['flash_sale_price'] !== null;
+            $item['original_price'] = $basePrice; // Keep original price to show strike-through
             $item['subtotal'] = $item['unit_price'] * (int) $item['quantity'];
             $item['is_available'] = self::isItemAvailable($item);
         }
@@ -209,7 +219,7 @@ class CartModel
         }
 
         if ((int) $variant['stock_quantity'] < $quantity) {
-            throw new RuntimeException('Ton kho biến thể không du so luong.');
+            throw new RuntimeException('Tồn kho của biến thể này không đủ so với số lượng bạn yêu cầu.');
         }
     }
 
