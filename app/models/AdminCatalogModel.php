@@ -273,7 +273,7 @@ class AdminCatalogModel
     {
         $name = trim((string) ($data['name'] ?? ''));
         $level = (string) ($data['level'] ?? '');
-        $parentId = isset($data['parent_id']) && $data['parent_id'] !== '' ? (int) $data['parent_id'] : null;
+        $parentId = !empty($data['parent_id']) ? (int) $data['parent_id'] : null;
 
         if ($name === '') {
             throw new RuntimeException('Vui lòng nhập tên danh mục.');

@@ -114,7 +114,7 @@ $canUpdate = PermissionMiddleware::can($user, MODULE_ORDERS, 'update');
             $variantsByProduct = [];
             $storeId = StoreEmployeeModel::storeIdForActor($user);
             $db = getDB();
-            $stmt = $db->prepare('SELECT id, name, base_price, stock_quantity FROM products WHERE store_id = :store_id AND deleted_at IS NULL AND status = "approved"');
+            $stmt = $db->prepare('SELECT p.id, p.name, p.base_price, (SELECT COALESCE(SUM(v.stock_quantity), 0) FROM product_variants v WHERE v.product_id = p.id AND v.is_active = 1) AS stock_quantity FROM products p WHERE p.store_id = :store_id AND p.deleted_at IS NULL AND p.status = "approved"');
             $stmt->execute([':store_id' => $storeId]);
             $catalogProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
