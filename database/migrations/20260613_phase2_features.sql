@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS `user_loyalty` (
     `total_spent` DECIMAL(15,2) NOT NULL DEFAULT 0,
     `current_points` INT NOT NULL DEFAULT 0,
     `tier_level` ENUM('bronze', 'silver', 'gold', 'diamond') NOT NULL DEFAULT 'bronze',
+    `spins_available` INT NOT NULL DEFAULT 0,
+    `free_spin_used` TINYINT(1) DEFAULT 0,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`user_id`),
@@ -82,3 +84,6 @@ CREATE TABLE IF NOT EXISTS `flash_sale_products` (
     CONSTRAINT `fk_flash_sale_products_sale` FOREIGN KEY (`flash_sale_id`) REFERENCES `flash_sales` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_flash_sale_products_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. Thêm trạng thái lượt quay vào orders
+ALTER TABLE `orders` ADD COLUMN `is_spin_used` TINYINT(1) DEFAULT 0 AFTER `final_amount`;
