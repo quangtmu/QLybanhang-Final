@@ -1,9 +1,32 @@
 <?php
 // OmniSales Buyer Header - Vietnamese - Compact & Icon-focused
 $cartCount = 0;
-if (!empty($user) && class_exists('CartModel')) {
-    $cart = CartModel::getForBuyer((int) $user['id']);
-    $cartCount = $cart['summary']['total_quantity'] ?? 0;
+$unreadNotiCount = 0;
+$unreadChatCount = 0;
+$activeOrderCount = 0;
+
+if (!empty($user)) {
+    if (class_exists('CartModel')) {
+        $cart = CartModel::getForBuyer((int) $user['id']);
+        $cartCount = $cart['summary']['total_quantity'] ?? 0;
+    }
+    if (class_exists('NotificationModel')) {
+        $unreadNotiCount = NotificationModel::unreadCount((int) $user['id']);
+    }
+    try {
+        $storeId = in_array($user['user_type'], ['store_approved']) ? (int)$user['id'] : 0;
+        $unreadChatCount = (int) getDB()->query(
+            "SELECT COUNT(*) FROM messages m 
+             JOIN message_rooms r ON r.id = m.room_id 
+             JOIN orders o ON o.id = r.order_id 
+             WHERE m.sender_id != {$user['id']} AND m.is_read = 0 
+             AND (o.buyer_id = {$user['id']} OR o.store_id = {$storeId})"
+        )->fetchColumn();
+
+        $activeOrderCount = (int) getDB()->query(
+            "SELECT COUNT(*) FROM orders WHERE buyer_id = {$user['id']} AND status IN ('pending', 'processing', 'delivering')"
+        )->fetchColumn();
+    } catch (Throwable $e) {}
 }
 ?>
 <!-- Compact Header -->
@@ -50,8 +73,11 @@ if (!empty($user) && class_exists('CartModel')) {
                 <a href="<?= htmlspecialchars($sellerLink) ?>" class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Kênh Người Bán">
                     <span class="material-symbols-outlined text-[20px]">store</span>
                 </a>
-                <a href="/user/orders.php" class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Đơn hàng">
+                <a href="/user/orders.php" class="relative p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Đơn hàng">
                     <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                    <?php if ($activeOrderCount > 0): ?>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+                    <?php endif; ?>
                 </a>
             </div>
 
@@ -70,13 +96,19 @@ if (!empty($user) && class_exists('CartModel')) {
                 </a>
 
                 <!-- Chat -->
-                <a href="/chat.php" class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Tin nhắn">
+                <a href="/chat.php" class="relative p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Tin nhắn">
                     <span class="material-symbols-outlined text-[20px]">chat</span>
+                    <?php if ($unreadChatCount > 0): ?>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+                    <?php endif; ?>
                 </a>
 
                 <!-- Notifications -->
-                <a href="/notifications.php" class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Thông báo">
+                <a href="/notifications.php" class="relative p-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Thông báo">
                     <span class="material-symbols-outlined text-[20px]">notifications</span>
+                    <?php if ($unreadNotiCount > 0): ?>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+                    <?php endif; ?>
                 </a>
 
                 <!-- Mobile search -->
@@ -134,8 +166,13 @@ if (!empty($user) && class_exists('CartModel')) {
             <span class="material-symbols-outlined text-[20px]">grid_view</span>
             <span class="text-[10px] font-semibold">Sản phẩm</span>
         </a>
-        <a href="/user/orders.php" class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary transition-colors py-1 px-3">
-            <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+        <a href="/user/orders.php" class="relative flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary transition-colors py-1 px-3">
+            <div class="relative">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                <?php if ($activeOrderCount > 0): ?>
+                    <span class="absolute -top-0.5 -right-1 w-2 h-2 bg-error rounded-full border border-white"></span>
+                <?php endif; ?>
+            </div>
             <span class="text-[10px] font-semibold">Đơn hàng</span>
         </a>
         <a href="/profile.php" class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary transition-colors py-1 px-3">
