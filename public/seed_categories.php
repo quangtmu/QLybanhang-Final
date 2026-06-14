@@ -72,6 +72,17 @@ try {
 
     echo "<h3>Bắt đầu seed dữ liệu danh mục...</h3>";
 
+    try {
+        $db->exec("ALTER TABLE categories ADD COLUMN icon VARCHAR(255) NULL AFTER description");
+        echo "<p>Đã thêm cột `icon` vào bảng `categories` thành công.</p>";
+    } catch (Exception $e) {
+        if (strpos($e->getMessage(), 'Duplicate column name') !== false) {
+            echo "<p>Cột `icon` đã tồn tại.</p>";
+        } else {
+            echo "<p style='color:orange'>Lưu ý khi thêm cột icon: " . $e->getMessage() . "</p>";
+        }
+    }
+
     $insertStmt = $db->prepare('INSERT INTO categories (name, slug, parent_id, level, icon, is_active) VALUES (?, ?, ?, ?, ?, 1)');
     $count = 0;
 
