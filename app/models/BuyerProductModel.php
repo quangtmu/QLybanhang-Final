@@ -95,8 +95,16 @@ class BuyerProductModel
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
 
+        $items = $stmt->fetchAll();
+        require_once __DIR__ . '/../controllers/StorageService.php';
+        foreach ($items as &$item) {
+            if (!empty($item['main_image_url'])) {
+                $item['main_image_url'] = StorageService::publicUrl($item['main_image_url']);
+            }
+        }
+
         return [
-            'items' => $stmt->fetchAll(),
+            'items' => $items,
             'pagination' => [
                 'page' => $page,
                 'limit' => $limit,
@@ -127,6 +135,18 @@ class BuyerProductModel
 
         if (!$product) {
             return null;
+        }
+
+        require_once __DIR__ . '/../controllers/StorageService.php';
+        if (!empty($product['main_image_url'])) {
+            $product['main_image_url'] = StorageService::publicUrl($product['main_image_url']);
+        }
+        $images = self::jsonOrNull($product['images']);
+        if (is_array($images)) {
+            foreach ($images as &$img) {
+                $img = StorageService::publicUrl($img);
+            }
+            $product['images'] = json_encode($images);
         }
 
         $product['tags'] = self::tagsForProduct($id);

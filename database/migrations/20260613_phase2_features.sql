@@ -18,6 +18,7 @@ ADD UNIQUE INDEX `idx_categories_slug` (`slug`);
 CREATE TABLE IF NOT EXISTS `vouchers` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `store_id` BIGINT UNSIGNED NULL, -- NULL nếu là Voucher của sàn (Admin)
+    `buyer_id` BIGINT UNSIGNED NULL, -- NULL nếu áp dụng cho mọi khách
     `code` VARCHAR(50) NOT NULL,
     `discount_type` ENUM('percent', 'fixed') NOT NULL DEFAULT 'fixed',
     `discount_amount` DECIMAL(15,2) NOT NULL, -- Giá trị giảm (hoặc %)

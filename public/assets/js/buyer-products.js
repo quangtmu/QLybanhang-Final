@@ -11,14 +11,7 @@
         var storeName = APP.escapeHtml(product.store_name || 'Shop');
         var name = APP.escapeHtml(product.name);
         
-        var imgUrl = product.main_image_url || '';
-        if (imgUrl && imgUrl.startsWith('http')) {
-            // keep as is
-        } else if (imgUrl) {
-            imgUrl = 'https://pub-309aa43ab7414948a1e66726694eda95.r2.dev/' + imgUrl;
-        } else {
-            imgUrl = 'https://placehold.co/400x400/e2e8f0/64748b?text=No+Image';
-        }
+        var imgUrl = product.main_image_url || 'https://placehold.co/400x400/e2e8f0/64748b?text=No+Image';
         
         var productUrl = '/user/product-detail.php?id=' + id + (product.slug ? '&slug=' + APP.escapeHtml(product.slug) : '');
         var hasVariants = Number(product.has_variants) === 1;

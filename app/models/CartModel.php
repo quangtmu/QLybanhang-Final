@@ -133,11 +133,17 @@ class CartModel
         $stmt->execute([':buyer_id' => $buyerId]);
         $items = $stmt->fetchAll();
 
+        require_once __DIR__ . '/../controllers/StorageService.php';
         foreach ($items as &$item) {
             $basePrice = $item['variant_id'] ? (float) $item['variant_price'] : (float) $item['base_price'];
             $item['unit_price'] = $item['flash_sale_price'] !== null ? (float) $item['flash_sale_price'] : $basePrice;
             $item['is_flash_sale'] = $item['flash_sale_price'] !== null;
             $item['original_price'] = $basePrice; // Keep original price to show strike-through
+            
+            if (!empty($item['main_image_url'])) {
+                $item['main_image_url'] = StorageService::publicUrl($item['main_image_url']);
+            }
+            
             $item['subtotal'] = $item['unit_price'] * (int) $item['quantity'];
             $item['is_available'] = self::isItemAvailable($item);
         }

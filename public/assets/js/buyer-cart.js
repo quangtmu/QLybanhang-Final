@@ -29,6 +29,11 @@
             selectedTotal.textContent = money(total);
         }
 
+        var finalPrice = document.getElementById('cart-final-price');
+        if (finalPrice) {
+            finalPrice.textContent = money(total);
+        }
+
         if (selectedCount) {
             selectedCount.textContent = String(count);
         }

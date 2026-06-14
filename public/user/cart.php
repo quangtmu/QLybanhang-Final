@@ -141,7 +141,7 @@ function renderCart(array $cart): string
     $html .= '</div>'; // End Left side
 
     // Order Summary (Right Sidebar)
-    $totalPriceRaw = (float) ($cart['summary']['total_price'] ?? 0);
+    $totalPriceRaw = (float) ($cart['summary']['total'] ?? 0);
     $totalPrice = UiHelper::money($totalPriceRaw);
     
     $html .= <<<HTML
