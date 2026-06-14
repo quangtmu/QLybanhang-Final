@@ -230,7 +230,9 @@ class StorageService
             }
             $logMsg = date('Y-m-d H:i:s') . " - R2 Upload Failed:\nURL: {$url}\nStatus: {$status}\ncURL Error: {$error}\nResponse: " . (is_string($response) ? substr($response, 0, 1000) : 'false') . "\n---\n";
             @file_put_contents($logDir . '/r2_upload_errors.log', $logMsg, FILE_APPEND);
-            throw new RuntimeException('Upload lên R2 thất bại' . ($error ? ': ' . $error : '.'));
+            error_log($logMsg); // Also log to stderr so it shows in Railway logs
+            $excerpt = is_string($response) ? substr($response, 0, 200) : '';
+            throw new RuntimeException("Upload lên R2 thất bại (HTTP {$status}). {$error}. Phản hồi: {$excerpt}");
         }
     }
 
