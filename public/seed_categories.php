@@ -111,6 +111,22 @@ try {
     }
 
     echo "<p>Đã tạo thành công {$count} danh mục các cấp!</p>";
+
+    echo "<h3>Bắt đầu seed dữ liệu tags...</h3>";
+    $tags = ['Hot Trend', 'Giảm giá', 'Mùa hè', 'Mùa đông', 'Mới về', 'Bán chạy', 'Quà tặng', 'Freeship', 'Chính hãng', 'Giới trẻ', 'Công sở', 'Du lịch', 'Cao cấp', 'Vintage'];
+    $tagStmt = $db->prepare('INSERT INTO tags (name, slug) VALUES (?, ?)');
+    $tagCount = 0;
+    foreach ($tags as $tagName) {
+        try {
+            $tagSlug = AdminCatalogModel::slugify($tagName);
+            $tagStmt->execute([$tagName, $tagSlug]);
+            $tagCount++;
+        } catch (Exception $e) {
+            // Ignore duplicate errors for tags
+        }
+    }
+    echo "<p>Đã tạo thành công {$tagCount} tags!</p>";
+
     echo "<p><a href='/admin/categories.php'>Quay lại trang Quản lý danh mục</a></p>";
 
 } catch (Exception $e) {
