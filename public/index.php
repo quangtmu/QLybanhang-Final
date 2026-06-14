@@ -4,6 +4,19 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/config.php';
 
+$path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+
+if (preg_match('#^/san-pham/([a-zA-Z0-9-]+)$#', $path, $matches)) {
+    $_GET['slug'] = $matches[1];
+    require __DIR__ . '/user/product-detail.php';
+    exit;
+}
+
+if (preg_match('#^/danh-muc/([a-zA-Z0-9-]+)$#', $path, $matches)) {
+    $_GET['category_slug'] = $matches[1];
+    require __DIR__ . '/user/products.php';
+    exit;
+}
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
