@@ -242,14 +242,22 @@ class AdminOrderModel
     private static function itemsForOrder(int $orderId): array
     {
         $stmt = getDB()->prepare(
-            'SELECT *
-             FROM order_items
-             WHERE order_id = :order_id
-             ORDER BY id ASC'
+            'SELECT oi.*, p.main_image_url
+             FROM order_items oi
+             LEFT JOIN products p ON p.id = oi.product_id
+             WHERE oi.order_id = :order_id
+             ORDER BY oi.id ASC'
         );
         $stmt->execute([':order_id' => $orderId]);
 
-        return $stmt->fetchAll();
+        $items = $stmt->fetchAll();
+        require_once __DIR__ . '/../controllers/StorageService.php';
+        foreach ($items as &$item) {
+            if (!empty($item['main_image_url'])) {
+                $item['main_image_url'] = StorageService::publicUrl($item['main_image_url']);
+            }
+        }
+        return $items;
     }
 
     private static function logsForOrder(int $orderId): array

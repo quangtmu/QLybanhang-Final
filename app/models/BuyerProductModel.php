@@ -141,7 +141,7 @@ class BuyerProductModel
         if (!empty($product['main_image_url'])) {
             $product['main_image_url'] = StorageService::publicUrl($product['main_image_url']);
         }
-        $images = self::jsonOrNull($product['images']);
+        $images = is_string($product['images']) ? json_decode($product['images'], true) : [];
         if (is_array($images)) {
             foreach ($images as &$img) {
                 $img = StorageService::publicUrl($img);
@@ -180,6 +180,19 @@ class BuyerProductModel
         }
 
         $id = (int) $product['id'];
+
+        require_once __DIR__ . '/../controllers/StorageService.php';
+        if (!empty($product['main_image_url'])) {
+            $product['main_image_url'] = StorageService::publicUrl($product['main_image_url']);
+        }
+        $images = is_string($product['images']) ? json_decode($product['images'], true) : [];
+        if (is_array($images)) {
+            foreach ($images as &$img) {
+                $img = StorageService::publicUrl($img);
+            }
+            $product['images'] = json_encode($images);
+        }
+
         $product['tags'] = self::tagsForProduct($id);
         $product['variants'] = self::variantsForProduct($id);
         self::incrementViewCount($id);
