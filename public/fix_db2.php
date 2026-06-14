@@ -20,6 +20,14 @@ try {
             // Ignore if column exists
         }
     }
+    
+    // Also add restock_wait_days to product_variants
+    try {
+        $db->exec("ALTER TABLE `product_variants` ADD COLUMN `restock_wait_days` INT NOT NULL DEFAULT 0");
+    } catch (Exception $e) {
+        // Ignore if column exists
+    }
+
     echo "<h3>Thêm các cột thành công!</h3>";
     echo "<p>Vui lòng xóa file này đi để bảo mật.</p>";
 } catch (Exception $e) {

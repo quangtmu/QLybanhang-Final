@@ -258,6 +258,7 @@ CREATE TABLE `product_variants` (
     `sku` VARCHAR(100) NULL,
     `price` DECIMAL(15,2) NOT NULL,
     `stock_quantity` INT NOT NULL DEFAULT 0,
+    `restock_wait_days` INT NOT NULL DEFAULT 0,
     `image_url` VARCHAR(512) NULL,
     `is_active` TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY (`id`),
