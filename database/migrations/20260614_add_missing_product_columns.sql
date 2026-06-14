@@ -6,4 +6,5 @@ ADD COLUMN `volume` DECIMAL(8,2) NULL AFTER `weight_unit`,
 ADD COLUMN `volume_unit` ENUM('ml','l','m3') NULL AFTER `volume`,
 ADD COLUMN `length` DECIMAL(8,2) NULL AFTER `volume_unit`,
 ADD COLUMN `width` DECIMAL(8,2) NULL AFTER `length`,
-ADD COLUMN `height` DECIMAL(8,2) NULL AFTER `width`;
+ADD COLUMN `height` DECIMAL(8,2) NULL AFTER `width`,
+ADD COLUMN `is_recommended` TINYINT(1) NOT NULL DEFAULT 0 AFTER `height`;

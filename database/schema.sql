@@ -228,6 +228,7 @@ CREATE TABLE `products` (
     `length` DECIMAL(8,2) NULL,
     `width` DECIMAL(8,2) NULL,
     `height` DECIMAL(8,2) NULL,
+    `is_recommended` TINYINT(1) NOT NULL DEFAULT 0,
     `approved_by` BIGINT UNSIGNED NULL,
     `approved_at` DATETIME NULL,
     `reject_reason` TEXT NULL,
